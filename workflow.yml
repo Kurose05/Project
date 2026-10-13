@@ -1,0 +1,45 @@
+name: Online Feedback System - Workflow
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-project:
+    name: Test and Build Website
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get source code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install project packages
+        run: npm ci
+
+      - name: Run project tests
+        run: npm test
+
+      - name: Check code quality
+        run: npm run lint
+
+      - name: Build website
+        run: npm run build
+
+      - name: Save production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: online-feedback-website-build
+          path: dist/
+          if-no-files-found: error
